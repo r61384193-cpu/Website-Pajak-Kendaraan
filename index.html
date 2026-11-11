@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>e-Samsat Digital - Layanan Pajak Kendaraan Bermotor</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Inter & FontAwesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* CSS Khusus untuk Print e-TBPKP */
+        @media print {
+            body A visible;
+            }
+            #printable-receipt {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                padding: 20px;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans flex flex-col min-h-screen">
+
+    <!-- HEADER / NAVIGATION -->
+    <header class="bg-brand-900 text-white sticky top-0 z-40 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16 sm:h-20">
+                <!-- Logo & Title -->
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('beranda')">
+                    <div class="bg-blue-600 p-2.5 rounded-xl text-white shadow-lg">
+                        <i class="fa-solid fa-car-side text-2xl sm:text-3xl"></i>
+                    </div>
+                    <div>
+                        <span class="text-xl sm:text-2xl font-bold tracking-tight block">e-SAMSAT <span class="text-blue-400">DIGITAL</span></span>
+                        <span class="text-xs text-blue-200 hidden sm:block">Layanan Mandiri Pajak Kendaraan Bermotor</span>
+                    </div>
+                </div>
+
+                <!-- Desktop Navigation -->
+                <nav class="hidden md:flex items-center space-x-6 text-sm font-medium">
+                    <button onclick="switchTab('beranda')" class="nav-btn hover:text-blue-300 transition py-2 border-b-2 border-transparent hover:border-blue-400">Beranda</button>
+                    <button onclick="switchTab('cek-pajak')" class="nav-btn hover:text-blue-300 transition py-2 border-b-2 border-transparent hover:border-blue-400">Cek & Bayar Pajak</button>
+                    <button onclick="switchTab('riwayat')" class="nav-btn hover:text-blue-300 transition py-2 border-b-2 border-transparent hover:border-blue-400">Riwayat</button>
+                    <button onclick="switchTab('samsat-keliling')" class="nav-btn hover:text-blue-300 transition py-2 border-b-2 border-transparent hover:border-blue-400">Samsat Keliling</button>
+                    <button onclick="switchTab('faq')" class="nav-btn hover:text-blue-300 transition py-2 border-b-2 border-transparent hover:border-blue-400">Bantuan & FAQ</button>
+                </nav>
+
+                <!-- Auth Buttons / User Profile -->
+                <div id="auth-area" class="flex items-center space-x-3">
+                    <button onclick="openLoginModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-semibold transition shadow hover:shadow-lg flex items-center space-x-2">
+                        <i class="fa-solid fa-right-to-bracket"></i>
+                        <span>Masuk / Daftar</span>
+                    </button>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden">
+                    <button onclick="toggleMobileMenu()" class="text-slate-300 hover:text-white p-2">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-brand-800 border-t border-brand-700 px-4 pt-2 pb-4 space-y-2 text-sm">
+            <button onclick="switchTab('beranda'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 rounded-md hover:bg-brand-700">Beranda</button>
+            <button onclick="switchTab('cek-pajak'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 rounded-md hover:bg-brand-700">Cek & Bayar Pajak</button>
+            <button onclick="switchTab('riwayat'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 rounded-md hover:bg-brand-700">Riwayat Pembayaran</button>
+            <button onclick="switchTab('samsat-keliling'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 rounded-md hover:bg-brand-700">Jadwal Samsat Keliling</button>
+            <button onclick="switchTab('faq'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 rounded-md hover:bg-brand-700">FAQ / Bantuan</button>
+        </div>
+    </header>
+
+    <!-- ANNOUNCEMENT BANNER -->
+    <div class="bg-amber-500 text-amber-950 font-medium text-xs sm:text-sm py-2 px-4 text-center shadow-inner flex items-center justify-center space-x-2">
+        <i class="fa-solid fa-bullhorn text-lg"></i>
+        <span><strong>Program Pemutihan Pajak:</strong> Bebas Denda Keterlambatan PKB & Gratis Bea Balik Nama (BBNKB II) hingga akhir bulan ini!</span>
+    </div>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- ================= PAGE 1: BERANDA ================= -->
+        <section id="page-beranda" class="space-y-8">
+            <!-- Hero Section -->
+            <div class="bg-gradient-to-r from-brand-900 via-brand-800 to-blue-800 rounded-3xl p-6 sm:p-10 text-white shadow-xl relative overflow-hidden">
+                <div class="relative z-10 max-w-2xl space-y-4">
+                    <span class="bg-blue-500/30 text-blue-200 border border-blue-400/30 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider">Layanan Resmi E-Samsat</span>
+                    <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight">Bayar Pajak Kendaraan Tanpa Antre, Cepat & Aman</h1>
+                    <p class="text-blue-100 text-sm sm:text-base">Periksa tagihan Pajak Kendaraan Bermotor (PKB) Anda secara real-time dan lakukan pembayaran langsung secara digital dalam hitungan menit.</p>
+                    <div class="pt-2 flex flex-wrap gap-3">
+                        <button onclick="switchTab('cek-pajak')" class="bg-white text-brand-900 hover:bg-blue-50 font-bold px-6 py-3 rounded-xl shadow-lg transition flex items-center space-x-2">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <span>Cek Pajak Sekarang</span>
+                        </button>
+                        <button onclick="switchTab('faq')" class="bg-blue-700/60 hover:bg-blue-700 text-white font-medium px-5 py-3 rounded-xl border border-blue-400/30 transition">
+                            Pelajari Syarat & Cara
+                        </button>
+                    </div>
+                </div>
+                <!-- Graphic decoration -->
+                <div class="hidden lg:block absolute -right-10 -bottom-10 opacity-20 pointer-events-none">
+                    <i class="fa-solid fa-car text-[280px] text-white"></i>
+                </div>
+            </div>
+
+            <!-- Quick Action Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 hover:shadow-md transition">
+                    <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center text-xl font-bold mb-4">
+                        <i class="fa-solid fa-calculator"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-800 mb-1">Cek & Hitung Pajak</h3>
+                    <p class="text-slate-600 text-sm mb-4">Masukkan nomor polisi kendaraan untuk melihat rincian PKB, SWDKLLJ, dan sanksi denda jika ada.</p>
+                    <button onclick="switchTab('cek-pajak')" class="text-blue-600 font-semibold text-sm hover:underline flex items-center space-x-1">
+                        <span>Cek Tagihan</span> <i class="fa-solid fa-arrow-right text-xs"></i>
+                    </button>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 hover:shadow-md transition">
+                    <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center text-xl font-bold mb-4">
+                        <i class="fa-solid fa-receipt"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-800 mb-1">e-TBPKP Digital</h3>
+                    <p class="text-slate-600 text-sm mb-4">Unduh dan cetak Tanda Bukti Pelunasan Kewajiban Pembayaran resmi bersertifikasi QR-Code.</p>
+                    <button onclick="switchTab('riwayat')" class="text-emerald-600 font-semibold text-sm hover:underline flex items-center space-x-1">
+                        <span>Lihat Riwayat & Cetak</span> <i class="fa-solid fa-arrow-right text-xs"></i>
+                    </button>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 hover:shadow-md transition">
+                    <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center text-xl font-bold mb-4">
+                        <i class="fa-solid fa-truck-monster"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-800 mb-1">Samsat Keliling</h3>
+                    <p class="text-slate-600 text-sm mb-4">Cari titik lokasi bus Samsat Keliling terdekat di kota Anda untuk perpanjangan STNK tahunan.</p>
+                    <button onclick="switchTab('samsat-keliling')" class="text-amber-600 font-semibold text-sm hover:underline flex items-center space-x-1">
+                        <span>Lihat Jadwal Lokasi</span> <i class="fa-solid fa-arrow-right text-xs"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Demo Vehicle Presets -->
+            <div class="bg-blue-50 border border-blue-200 rounded-2xl p-6">
+                <h3 class="text-base font-bold text-brand-900 mb-2 flex items-center space-x-2">
+                    <i class="fa-solid fa-circle-info text-blue-600"></i>
+                    <span>Coba Data Kendaraan Demo</span>
+                </h3>
+                <p class="text-xs sm:text-sm text-slate-600 mb-4">Gunakan contoh data plat nomor di bawah ini pada menu <strong>Cek & Bayar Pajak</strong> untuk pengujian langsung:</p>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <button onclick="fillDemoSearch('B 1234 ABC', '1234567890123456', 'mobil')" class="bg-white hover:bg-blue-100/50 p-3 rounded-xl border border-blue-200 text-left transition shadow-sm">
+                        <span class="inline-block bg-slate-900 text-white font-mono font-bold px-2 py-0.5 rounded text-xs mb-1">B 1234 ABC</span>
+                        <div class="text-xs font-semibold text-slate-800">Toyota Avanza (Mobil)</div>
+                        <div class="text-[11px] text-slate-500">Status: Tepat Waktu</div>
+                    </button>
+                    <button onclick="fillDemoSearch('D 8888 XYZ', '9876543210987654', 'motor')" class="bg-white hover:bg-blue-100/50 p-3 rounded-xl border border-blue-200 text-left transition shadow-sm">
+                        <span class="inline-block bg-slate-900 text-white font-mono font-bold px-2 py-0.5 rounded text-xs mb-1">D 8888 XYZ</span>
+                        <div class="text-xs font-semibold text-slate-800">Honda Vario (Motor)</div>
+                        <div class="text-[11px] text-red-500 font-medium">Status: Menunggak 3 Bulan</div>
+                    </button>
+                    <button onclick="fillDemoSearch('B 5678 EFG', '5555666677778888', 'mobil')" class="bg-white hover:bg-blue-100/50 p-3 rounded-xl border border-blue-200 text-left transition shadow-sm">
+                        <span class="inline-block bg-slate-900 text-white font-mono font-bold px-2 py-0.5 rounded text-xs mb-1">B 5678 EFG</span>
+                        <div class="text-xs font-semibold text-slate-800">Honda CR-V (Mobil)</div>
+                        <div class="text-[11px] text-slate-500">Status: Masa Pajak Habis 15 Hari Lagi</div>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ================= PAGE 2: CEK & BAYAR PAJAK ================= -->
+        <section id="page-cek-pajak" class="space-y-8 hidden">
+            <div class="max-w-4xl mx-auto">
+                <!-- Header -->
+                <div class="text-center mb-8">
+                    <h2 class="text-2xl sm:text-3xl font-bold text-slate-900">Cek Tagihan & Bayar Pajak Kendaraan</h2>
+                    <p class="text-slate-600 text-sm mt-1">Masukkan data Plat Kendaraan dan 5 Digit Terakhir Nomor Rangka STNK Anda</p>
+                </div>
+
+                <!-- Form Card -->
+                <div class="bg-white rounded-2xl shadow-lg border border-slate-200/80 p-6 sm:p-8">
+                    <form id="tax-search-form" onsubmit="handleTaxSearch(event)" class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <!-- Nomor Polisi -->
+                            <div class="space-y-2 md:col-span-1">
+                                <label for="nopol" class="block text-xs font-bold uppercase tracking-wider text-slate-700">Nomor Polisi (Plat)</label>
+                                <div class="relative">
+                                    <input type="text" id="nopol" required placeholder="Contoh: B 1234 ABC" class="w-full font-mono uppercase bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-900 font-bold focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition">
+                                </div>
+                                <p class="text-[11px] text-slate-400">Gunakan spasi antar kode wilayah & angka</p>
+                            </div>
+
+                            <!-- Nomor Rangka -->
+                            <div class="space-y-2 md:col-span-1">
+                                <label for="norangka" class="block text-xs font-bold uppercase tracking-wider text-slate-700">5 Digit No. Rangka</label>
+                                <input type="text" id="norangka" maxlength="16" required placeholder="Contoh: 12345" class="w-full uppercase bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-900 font-semibold focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition">
+                                <p class="text-[11px] text-slate-400">Cek di lembar STNK belakang</p>
+                            </div>
+
+                            <!-- Jenis Kendaraan -->
+                            <div class="space-y-2 md:col-span-1">
+                                <label for="jenis-kendaraan" class="block text-xs font-bold uppercase tracking-wider text-slate-700">Jenis Kendaraan</label>
+                                <select id="jenis-kendaraan" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-900 font-semibold focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition">
+                                    <option value="mobil">Roda 4 (Mobil / SUV / Pickup)</option>
+                                    <option value="motor">Roda 2 / 3 (Sepeda Motor)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-end space-x-3 pt-2">
+                            <button type="reset" onclick="resetSearchResult()" class="px-5 py-3 rounded-xl border border-slate-300 text-slate-600 hover:bg-slate-100 text-sm font-semibold transition">
+                                Reset
+                            </button>
+                            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-3 rounded-xl shadow-md transition flex items-center space-x-2">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <span>Cari Data Kendaraan</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- ALERT NOTIFICATION AREA -->
+                <div id="search-alert" class="mt-6 hidden"></div>
+
+                <!-- RESULT SECTION (Hidden by default) -->
+                <div id="tax-result-section" class="mt-8 space-y-6 hidden">
+                    <!-- Vehicle Info Header -->
+                    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-md">
+                        <div class="bg-gradient-to-r from-slate-900 to-slate-800 text-white p-6 flex flex-wrap items-center justify-between gap-4">
+                            <div>
+                                <div class="flex items-center space-x-3">
+                                    <span id="res-nopol" class="bg-amber-400 text-slate-950 font-mono text-2xl font-black px-3 py-1 rounded-lg border-2 border-slate-900">B 1234 ABC</span>
+                                    <span id="res-status-badge" class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-bold px-3 py-1 rounded-full uppercase">Aktif</span>
+                                </div>
+                                <h3 id="res-tipe" class="text-xl font-bold mt-2">Toyota Avanza 1.5 G MT</h3>
+                                <p id="res-pemilik" class="text-sm text-slate-300">An. AHMAD FAUZI • NIK: 3171************</p>
+                            </div>
+                            <div class="text-right border-l border-slate-700 pl-4 hidden sm:block">
+                                <span class="text-xs text-slate-400 uppercase block">Jatuh Tempo Pajak</span>
+                                <span id="res-jatuh-tempo" class="text-lg font-bold text-amber-300">15 Oktober 2026</span>
+                            </div>
+                        </div>
+
+                        <!-- Detail Specs Grid -->
+                        <div class="p-6 grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs sm:text-sm bg-slate-50 border-b border-slate-200">
+                            <div>
+                                <span class="text-slate-400 block">Tahun / CC</span>
+                                <span id="res-tahun-cc" class="font-bold text-slate-700">2020 / 1496 cc</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 block">Warna Kendaraan</span>
+                                <span id="res-warna" class="font-bold text-slate-700">Hitam Metalik</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 block">No. Rangka</span>
+                                <span id="res-norangka" class="font-mono font-semibold text-slate-700">MHKM1234567890</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 block">No. Mesin</span>
+                                <span id="res-nomesin" class="font-mono font-semibold text-slate-700">1NR-F123456</span>
+                            </div>
+                        </div>
+
+                        <!-- Calculation Breakdown Table -->
+                        <div class="p-6 space-y-4">
+                            <h4 class="text-base font-bold text-slate-900 border-b pb-2 flex items-center justify-between">
+                                <span>Rincian Pokok & Denda Pajak</span>
+                                <span class="text-xs font-normal text-slate-500">Masa Pajak: 1 Tahun</span>
+                            </h4>
+
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between py-1">
+                                    <span class="text-slate-600">Pajak Kendaraan Bermotor (PKB Pokok)</span>
+                                    <span id="res-pkb" class="font-semibold text-slate-800">Rp 2.450.000</span>
+                                </div>
+                                <div class="flex justify-between py-1">
+                                    <span class="text-slate-600">SWDKLLJ (Jasa Raharja)</span>
+                                    <span id="res-swdkllj" class="font-semibold text-slate-800">Rp 143.000</span>
+                                </div>
+                                <div class="flex justify-between py-1">
+                                    <span class="text-slate-600">Biaya Administrasi STNK & TNKB</span>
+                                    <span id="res-admin" class="font-semibold text-slate-800">Rp 100.000</span>
+                                </div>
+                                <div class="flex justify-between py-1 text-amber-700 bg-amber-50 px-2 py-1 rounded">
+                                    <span class="flex items-center space-x-1">
+                                        <span>Denda Keterlambatan PKB</span>
+                                        <i class="fa-solid fa-triangle-exclamation text-xs"></i>
+                                    </span>
+                                    <span id="res-denda" class="font-semibold">Rp 0</span>
+                                </div>
+                                <hr class="my-2 border-slate-200">
+                                <div class="flex justify-between py-2 text-lg font-extrabold text-brand-900">
+                                    <span>Total Tagihan Pembayaran</span>
+                                    <span id="res-total" class="text-xl text-blue-600">Rp 2.693.000</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Action Box -->
+                    <div id="payment-box" class="bg-white rounded-2xl border border-slate-200 p-6 shadow-md space-y-6">
+                        <h4 class="text-lg font-bold text-slate-900 flex items-center space-x-2">
+                            <i class="fa-solid fa-wallet text-blue-600"></i>
+                            <span>Pilih Metode Pembayaran</span>
+                        </h4>
+
+                        <!-- Payment Method Options -->
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            <label class="payment-option cursor-pointer border-2 border-blue-500 bg-blue-50/50 p-4 rounded-xl flex flex-col items-center justify-center space-y-2 hover:border-blue-500 transition text-center">
+                                <input type="radio" name="pay-method" value="va" checked class="hidden" onchange="selectPaymentMethod(this)">
+                                <i class="fa-solid fa-building-columns text-2xl text-blue-600"></i>
+                                <span class="text-xs font-bold text-slate-800">Virtual Account / Transfer Bank</span>
+                            </label>
+                            <label class="payment-option cursor-pointer border-2 border-slate-200 p-4 rounded-xl flex flex-col items-center justify-center space-y-2 hover:border-blue-500 transition text-center">
+                                <input type="radio" name="pay-method" value="qris" class="hidden" onchange="selectPaymentMethod(this)">
+                                <i class="fa-solid fa-qrcode text-2xl text-slate-700"></i>
+                                <span class="text-xs font-bold text-slate-800">QRIS (GoPay, OVO, Shopee)</span>
+                            </label>
+                            <label class="payment-option cursor-pointer border-2 border-slate-200 p-4 rounded-xl flex flex-col items-center justify-center space-y-2 hover:border-blue-500 transition text-center">
+                                <input type="radio" name="pay-method" value="ewallet" class="hidden" onchange="selectPaymentMethod(this)">
+                                <i class="fa-solid fa-mobile-screen-button text-2xl text-slate-700"></i>
+                                <span class="text-xs font-bold text-slate-800">E-Wallet Direct</span>
+                            </label>
+                            <label class="payment-option cursor-pointer border-2 border-slate-200 p-4 rounded-xl flex flex-col items-center justify-center space-y-2 hover:border-blue-500 transition text-center">
+                                <input type="radio" name="pay-method" value="minimarket" class="hidden" onchange="selectPaymentMethod(this)">
+                                <i class="fa-solid fa-store text-2xl text-slate-700"></i>
+                                <span class="text-xs font-bold text-slate-800">Indomaret / Alfamart</span>
+                            </label>
+                        </div>
+
+                        <!-- Action Button -->
+                        <div class="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-100">
+                            <span class="text-xs text-slate-500">Dengan melanjutkan, Anda menyetujui syarat & ketentuan pengesahan STNK elektronik.</span>
+                            <button onclick="processPayment()" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white text-base font-bold px-8 py-3.5 rounded-xl shadow-lg transition flex items-center justify-center space-x-2">
+                                <i class="fa-solid fa-lock"></i>
+                                <span>Bayar Sekarang</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ================= PAGE 3: RIWAYAT PEMBAYARAN ================= -->
+        <section id="page-riwayat" class="space-y-6 hidden">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-900">Riwayat Pembayaran Pajak</h2>
+                    <p class="text-slate-600 text-sm">Daftar transaksi perpanjangan STNK dan bukti pembayaran sah (e-TBPKP)</p>
+                </div>
+                <button onclick="switchTab('cek-pajak')" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-xl transition">
+                    + Transaksi Baru
+                </button>
+            </div>
+
+            <!-- Transaction Cards / Table -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-600 text-xs font-bold uppercase tracking-wider border-b border-slate-200">
+                                <th class="p-4">Kode Transaksi</th>
+                                <th class="p-4">Kendaraan / Nopol</th>
+                                <th class="p-4">Tanggal Bayar</th>
+                                <th class="p-4">Metode</th>
+                                <th class="p-4">Total Bayar</th>
+                                <th class="p-4">Status</th>
+                                <th class="p-4 text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-table-body" class="divide-y divide-slate-100 text-sm">
+                            <!-- Populated dynamically via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ================= PAGE 4: SAMSAT KELILING ================= -->
+        <section id="page-samsat-keliling" class="space-y-6 hidden">
+            <div class="text-center max-w-2xl mx-auto mb-8">
+                <h2 class="text-2xl sm:text-3xl font-bold text-slate-900">Jadwal & Lokasi Samsat Keliling</h2>
+                <p class="text-slate-600 text-sm mt-1">Layanan bus keliling untuk perpanjangan STNK 1 tahunan tanpa perlu ke kantor Samsat Pusat</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Card 1 -->
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4 hover:shadow-md transition">
+                    <div class="flex items-center justify-between">
+                        <span class="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full">Jakarta Pusat</span>
+                        <span class="text-xs text-emerald-600 font-semibold flex items-center gap-1"><i class="fa-solid fa-circle text-[8px]"></i> Operasional</span>
+                    </div>
+                    <h3 class="font-bold text-slate-800 text-lg">Halaman ITC Cempaka Mas</h3>
+                    <div class="space-y-2 text-xs text-slate-600">
+                        <div class="flex items-start space-x-2">
+                            <i class="fa-solid fa-calendar text-slate-400 mt-0.5"></i>
+                            <span>Senin - Jumat (08.00 - 14.00 WIB)</span>
+                        </div>
+                        <div class="flex items-start space-x-2">
+                            <i class="fa-solid fa-location-dot text-slate-400 mt-0.5"></i>
+                            <span>Jl. Letjend Suprapto No.1, Sumur Batu</span>
+                        </div>
+                    </div>
+                    <div class="pt-2 border-t border-slate-100 flex justify-between items-center text-xs">
+                        <span class="text-slate-400">Kuota Per Hari: 100 Pemohon</span>
+                        <a href="https://maps.google.com" target="_blank" class="text-blue-600 font-bold hover:underline">Petunjuk Lokasi &rarr;</a>
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4 hover:shadow-md transition">
+                    <div class="flex items-center justify-between">
+                        <span class="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full">Jakarta Selatan</span>
+                        <span class="text-xs text-emerald-600 font-semibold flex items-center gap-1"><i class="fa-solid fa-circle text-[8px]"></i> Operasional</span>
+                    </div>
+                    <h3 class="font-bold text-slate-800 text-lg">Lapangan Parkir TMP Kalibata</h3>
+                    <div class="space-y-2 text-xs text-slate-600">
+                        <div class="flex items-start space-x-2">
+                            <i class="fa-solid fa-calendar text-slate-400 mt-0.5"></i>
+                            <span>Senin - Sabtu (08.00 - 12.00 WIB)</span>
+                        </div>
+                        <div class="flex items-start space-x-2">
+                            <i class="fa-solid fa-location-dot text-slate-400 mt-0.5"></i>
+                            <span>Jl. Pahlawan Kalibata, Pancoran</span>
+                        </div>
+                    </div>
+                    <div class="pt-2 border-t border-slate-100 flex justify-between items-center text-xs">
+                        <span class="text-slate-400">Kuota Per Hari: 150 Pemohon</span>
+                        <a href="https://maps.google.com" target="_blank" class="text-blue-600 font-bold hover:underline">Petunjuk Lokasi &rarr;</a>
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4 hover:shadow-md transition">
+                    <div class="flex items-center justify-between">
+                        <span class="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full">Bandung</span>
+                        <span class="text-xs text-emerald-600 font-semibold flex items-center gap-1"><i class="fa-solid fa-circle text-[8px]"></i> Operasional</span>
+                    </div>
+                    <h3 class="font-bold text-slate-800 text-lg">Halaman Dago Plaza</h3>
+                    <div class="space-y-2 text-xs text-slate-600">
+                        <div class="flex items-start space-x-2">
+                            <i class="fa-solid fa-calendar text-slate-400 mt-0.5"></i>
+                            <span>Senin - Jumat (09.00 - 13.00 WIB)</span>
+                        </div>
+                        <div class="flex items-start space-x-2">
+                            <i class="fa-solid fa-location-dot text-slate-400 mt-0.5"></i>
+                            <span>Jl. Ir. H. Juanda No.61, Bandung</span>
+                        </div>
+                    </div>
+                    <div class="pt-2 border-t border-slate-100 flex justify-between items-center text-xs">
+                        <span class="text-slate-400">Kuota Per Hari: 80 Pemohon</span>
+                        <a href="https://maps.google.com" target="_blank" class="text-blue-600 font-bold hover:underline">Petunjuk Lokasi &rarr;</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ================= PAGE 5: FAQ & BANTUAN ================= -->
+        <section id="page-faq" class="space-y-6 hidden max-w-4xl mx-auto">
+            <div class="text-center mb-8">
+                <h2 class="text-2xl sm:text-3xl font-bold text-slate-900">Pertanyaan Sering Diajukan (FAQ)</h2>
+                <p class="text-slate-600 text-sm mt-1">Temukan jawaban cepat terkait perpanjangan STNK dan pembayaran pajak digital</p>
+            </div>
+
+            <div class="space-y-4">
+                <!-- FAQ Item 1 -->
+                <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+                    <button onclick="toggleFaq(this)" class="w-full text-left p-5 font-bold text-slate-800 flex justify-between items-center hover:bg-slate-50">
+                        <span>Apa saja syarat untuk membayar Pajak Kendaraan secara online?</span>
+                        <i class="fa-solid fa-chevron-down text-slate-400 transition-transform"></i>
+                    </button>
+                    <div class="faq-content hidden p-5 pt-0 text-slate-600 text-sm border-t border-slate-100 bg-slate-50/50">
+                        Syarat utama meliputi: KTP Asli pemilik kendaraan (NIK harus sesuai STNK), STNK asli, serta Nomor Rangka & Nomor Mesin kendaraan.
+                    </div>
+                </div>
+
+                <!-- FAQ Item 2 -->
+                <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+                    <button onclick="toggleFaq(this)" class="w-full text-left p-5 font-bold text-slate-800 flex justify-between items-center hover:bg-slate-50">
+                        <span>Apakah e-TBPKP (Bukti Bayar Digital) perlu dicetak atau ditukar ke Samsat?</span>
+                        <i class="fa-solid fa-chevron-down text-slate-400 transition-transform"></i>
+                    </button>
+                    <div class="faq-content hidden p-5 pt-0 text-slate-600 text-sm border-t border-slate-100 bg-slate-50/50">
+                        e-TBPKP bersertifikasi QR-Code sah dan diakui secara hukum oleh Kepolisian RI. Anda dapat mengunduh dan mencetaknya mandiri tanpa wajib melakukan pengesahan manual ke Samsat untuk pajak tahunan.
+                    </div>
+                </div>
+
+                <!-- FAQ Item 3 -->
+                <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+                    <button onclick="toggleFaq(this)" class="w-full text-left p-5 font-bold text-slate-800 flex justify-between items-center hover:bg-slate-50">
+                        <span>Bagaimana cara kalkulasi denda keterlambatan pajak?</span>
+                        <i class="fa-solid fa-chevron-down text-slate-400 transition-transform"></i>
+                    </button>
+                    <div class="faq-content hidden p-5 pt-0 text-slate-600 text-sm border-t border-slate-100 bg-slate-50/50">
+                        Denda PKB dihitung sebesar 2% per bulan dari Pokok PKB (maksimal 24 bulan), ditambah denda SWDKLLJ sesuai ketentuan PT Jasa Raharja.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-brand-900 text-slate-300 text-sm mt-12 border-t border-brand-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div class="space-y-3">
+                <div class="flex items-center space-x-2 text-white font-bold text-lg">
+                    <i class="fa-solid fa-car-side text-blue-400"></i>
+                    <span>e-SAMSAT DIGITAL</span>
+                </div>
+                <p class="text-xs text-slate-400">Portal Resmi Pelayanan Pajak Kendaraan Bermotor Terpadu & Transparan.</p>
+            </div>
+            <div>
+                <h4 class="text-white font-bold mb-3 text-xs uppercase tracking-wider">Layanan Utama</h4>
+                <ul class="space-y-2 text-xs">
+                    <li><a href="#" onclick="switchTab('cek-pajak')" class="hover:text-white">Cek Pajak Kendaraan</a></li>
+                    <li><a href="#" onclick="switchTab('riwayat')" class="hover:text-white">Cetak e-TBPKP</a></li>
+                    <li><a href="#" onclick="switchTab('samsat-keliling')" class="hover:text-white">Samsat Keliling</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-white font-bold mb-3 text-xs uppercase tracking-wider">Kontak Bantuan</h4>
+                <p class="text-xs space-y-1 text-slate-400">
+                    <span>Call Center: 1500-200</span><br>
+                    <span>Email: support@esamsat.go.id</span><br>
+                    <span>WhatsApp: +62 811-2233-4455</span>
+                </p>
+            </div>
+            <div>
+                <h4 class="text-white font-bold mb-3 text-xs uppercase tracking-wider">Keamanan & Layanan</h4>
+                <div class="flex space-x-3 text-2xl text-slate-400">
+                    <i class="fa-solid fa-shield-halved hover:text-white"></i>
+                    <i class="fa-solid fa-lock hover:text-white"></i>
+                    <i class="fa-solid fa-building-columns hover:text-white"></i>
+                </div>
+            </div>
+        </div>
+        <div class="bg-slate-950 py-4 text-center text-xs text-slate-500">
+            &copy; 2026 e-Samsat Digital. Seluruh hak cipta dilindungi.
+        </div>
+    </footer>
+
+
+    <!-- ================= MODALS ================= -->
+
+    <!-- LOGIN / REGISTER MODAL -->
+    <div id="login-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm hidden p-4">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden relative animate-fade-in">
+            <!-- Close Button -->
+            <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+
+            <!-- Header -->
+            <div class="bg-brand-900 p-6 text-white text-center">
+                <i class="fa-solid fa-user-shield text-4xl text-blue-400 mb-2"></i>
+                <h3 class="text-xl font-bold">Portal Masuk e-Samsat</h3>
+                <p class="text-xs text-blue-200 mt-1">Silakan masuk ke akun Wajib Pajak / Admin</p>
+            </div>
+
+            <!-- Form -->
+            <form onsubmit="handleLogin(event)" class="p-6 space-y-4">
+                <!-- Role Selection -->
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-700 mb-1">Peran / Role Status</label>
+                    <select id="login-role" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="Wajib Pajak">Wajib Pajak (Masyarakat)</option>
+                        <option value="Petugas Samsat / Admin">Petugas Samsat / Admin</option>
+                    </select>
+                </div>
+
+                <!-- Username/Email -->
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-700 mb-1">NIK / Username / Email</label>
+                    <input type="text" id="login-user" required placeholder="Masukkan NIK KTP atau Username" class="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <!-- Password -->
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-700 mb-1">Kata Sandi</label>
+                    <input type="password" id="login-pass" required placeholder="••••••••" class="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <div class="flex items-center justify-between text-xs">
+                    <label class="flex items-center space-x-1 cursor-pointer">
+                        <input type="checkbox" class="rounded border-slate-300 text-blue-600">
+                        <span class="text-slate-600">Ingat Saya</span>
+                    </label>
+                    <a href="#" class="text-blue-600 font-semibold hover:underline">Lupa Password?</a>
+                </div>
+
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition shadow-md">
+                    Masuk Sekarang
+                </button>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- SIMULATION PAYMENT CONFIRMATION MODAL -->
+    <div id="payment-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm hidden p-4">
+        <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden relative">
+            <div class="bg-emerald-600 p-6 text-white text-center">
+                <i class="fa-solid fa-circle-check text-5xl mb-2 animate-bounce"></i>
+                <h3 class="text-2xl font-bold">Instruksi Pembayaran</h3>
+                <p class="text-xs text-emerald-100">Selesaikan transaksi sebelum batas waktu habis</p>
+            </div>
+
+            <div class="p-6 space-y-4">
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-center space-y-1">
+                    <span class="text-xs text-slate-500 uppercase">Kode Virtual Account / Pembayaran</span>
+                    <div class="text-2xl font-mono font-bold text-slate-900 tracking-wider" id="pay-code-display">8802 9182 3341 0092</div>
+                    <button onclick="copyToClipboard('8802 9182 3341 0092')" class="text-xs text-blue-600 font-bold hover:underline">
+                        <i class="fa-solid fa-copy"></i> Salin Kode
+                    </button>
+                </div>
+
+                <div class="space-y-2 text-sm border-t border-b py-3">
+                    <div class="flex justify-between text-xs">
+                        <span class="text-slate-500">Kendaraan:</span>
+                        <span id="pay-modal-nopol" class="font-bold">B 1234 ABC</span>
+                    </div>
+                    <div class="flex justify-between text-xs">
+                        <span class="text-slate-500">Total Pembayaran:</span>
+                        <span id="pay-modal-total" class="font-bold text-emerald-600">Rp 2.693.000</span>
+                    </div>
+                </div>
+
+                <p class="text-xs text-slate-500 text-center">Simulasi: Klik tombol di bawah ini untuk mensimulasikan pembayaran berhasil dari bank/e-wallet Anda.</p>
+
+                <div class="flex space-x-3">
+                    <button onclick="closePaymentModal()" class="w-1/2 py-3 rounded-xl border border-slate-300 text-slate-600 text-sm font-semibold">Batal</button>
+                    <button onclick="confirmSimulatedPayment()" class="w-1/2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold py-3 rounded-xl shadow transition">
+                        Simulasi Bayar Lunas
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- E-TBPKP RECEIPT MODAL / PRINTABLE AREA -->
+    <div id="receipt-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm hidden p-4 overflow-y-auto">
+        <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden my-8">
+            <div class="bg-slate-900 text-white p-4 flex justify-between items-center no-print">
+                <span class="font-bold text-sm"><i class="fa-solid fa-file-invoice text-blue-400 mr-2"></i>Bukti Pelunasan Pajak (e-TBPKP)</span>
+                <div class="flex space-x-2">
+                    <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-500 px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center space-x-1">
+                        <i class="fa-solid fa-print"></i>
+                        <span>Cetak Bukti</span>
+                    </button>
+                    <button onclick="closeReceiptModal()" class="bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded-lg text-xs font-bold">
+                        Tutup
+                    </button>
+                </div>
+            </div>
+
+            <!-- Printable content area -->
+            <div id="printable-receipt" class="p-8 space-y-6 bg-white">
+                <!-- Receipt Header -->
+                <div class="border-b-2 border-slate-900 pb-4 text-center relative">
+                    <div class="text-xs uppercase font-bold tracking-widest text-slate-500">Kepolisian Negara Republik Indonesia • Bapenda</div>
+                    <h2 class="text-xl font-black text-slate-900 uppercase tracking-tight">Tanda Bukti Pelunasan Kewajiban Pembayaran</h2>
+                    <p class="text-xs font-semibold text-slate-600">STNK & PAJAK KENDARAAN BERMOTOR DIGITAL (e-TBPKP)</p>
+                </div>
+
+                <!-- Main Data Grid -->
+                <div class="grid grid-cols-2 gap-4 text-xs">
+                    <div class="space-y-1">
+                        <span class="text-slate-400 block">No. Registrasi / Nopol:</span>
+                        <span id="rec-nopol" class="font-mono text-base font-bold text-slate-900">B 1234 ABC</span>
+                    </div>
+                    <div class="space-y-1 text-right">
+                        <span class="text-slate-400 block">No. Transaksi / Kode Bayar:</span>
+                        <span id="rec-trx" class="font-mono text-sm font-bold text-blue-800">TRX-2026-99218</span>
+                    </div>
+                    <div class="space-y-1">
+                        <span class="text-slate-400 block">Nama Pemilik:</span>
+                        <span id="rec-pemilik" class="font-bold text-slate-800">AHMAD FAUZI</span>
+                    </div>
+                    <div class="space-y-1 text-right">
+                        <span class="text-slate-400 block">Tipe Kendaraan:</span>
+                        <span id="rec-tipe" class="font-bold text-slate-800">TOYOTA AVANZA 1.5 G MT</span>
+                    </div>
+                </div>
+
+                <!-- Financial Table -->
+                <div class="border border-slate-300 rounded-lg overflow-hidden">
+                    <table class="w-full text-xs text-left border-collapse">
+                        <thead class="bg-slate-100 font-bold border-b border-slate-300">
+                            <tr>
+                                <th class="p-2.5">Uraian Pembayaran</th>
+                                <th class="p-2.5 text-right">Pokok (Rp)</th>
+                                <th class="p-2.5 text-right">Sanksi Denda (Rp)</th>
+                                <th class="p-2.5 text-right">Jumlah Total (Rp)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200">
+                            <tr>
+                                <td class="p-2.5">PKB (Pajak Kendaraan Bermotor)</td>
+                                <td id="rec-pkb-pokok" class="p-2.5 text-right">2.450.000</td>
+                                <td id="rec-pkb-denda" class="p-2.5 text-right">0</td>
+                                <td id="rec-pkb-total" class="p-2.5 text-right font-semibold">2.450.000</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2.5">SWDKLLJ (Jasa Raharja)</td>
+                                <td id="rec-swd-pokok" class="p-2.5 text-right">143.000</td>
+                                <td id="rec-swd-denda" class="p-2.5 text-right">0</td>
+                                <td id="rec-swd-total" class="p-2.5 text-right font-semibold">143.000</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2.5">Biaya Admin STNK/TNKB</td>
+                                <td id="rec-adm-pokok" class="p-2.5 text-right">100.000</td>
+                                <td class="p-2.5 text-right">0</td>
+                                <td id="rec-adm-total" class="p-2.5 text-right font-semibold">100.000</td>
+                            </tr>
+                        </tbody>
+                        <tfoot class="bg-slate-50 font-bold border-t border-slate-300">
+                            <tr>
+                                <td colspan="3" class="p-2.5 text-right uppercase">Total Pelunasan Sah:</td>
+                                <td id="rec-grand-total" class="p-2.5 text-right text-sm text-blue-900 font-black">Rp 2.693.000</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <!-- Footer Signatures & QR -->
+                <div class="flex items-center justify-between pt-4 border-t border-slate-200 text-xs">
+                    <div class="flex items-center space-x-3">
+                        <!-- Simulated QR Code SVG -->
+                        <div class="w-20 h-20 bg-slate-900 p-1.5 rounded flex items-center justify-center text-white">
+                            <i class="fa-solid fa-qrcode text-5xl"></i>
+                        </div>
+                        <div class="space-y-0.5 text-[11px] text-slate-500">
+                            <p class="font-bold text-slate-800">QR-Code Validasi Digital</p>
+                            <p>Tgl Pelunasan: <span id="rec-tgl-bayar">11 Nov 2026</span></p>
+                            <p class="text-emerald-600 font-bold">STATUS: SAH / LUNAS</p>
+                        </div>
+                    </div>
+                    <div class="text-center space-y-1">
+                        <p class="text-[10px] text-slate-400">Petugas Pengesahan Digital</p>
+                        <div class="h-8 flex items-center justify-center">
+                            <span class="font-serif italic font-bold text-slate-700">Bapenda Samsat</span>
+                        </div>
+                        <p class="font-bold text-slate-800 text-[11px]">Drs. Sutarman, M.Si</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // ================= DUMMY DATABASE KENDARAAN =================
+        const mockDatabase = {
+            "B 1234 ABC": {
+                nopol: "B 1234 ABC",
+                norangka: "1234567890123456",
+                nomesin: "1NR-F123456",
+                pemilik: "AHMAD FAUZI",
+                nik: "3171029837490001",
+                tipe: "Toyota Avanza 1.5 G MT",
+                jenis: "mobil",
+                tahun: "2020",
+                cc: "1496",
+                warna: "Hitam Metalik",
+                jatuhTempo: "2026-10-15",
+                pkb: 2450000,
+                swdkllj: 143000,
+                admin: 100000,
+                denda: 0,
+                status: "Tepat Waktu"
+            },
+            "D 8888 XYZ": {
+                nopol: "D 8888 XYZ",
+                norangka: "9876543210987654",
+                nomesin: "JFA1E-998213",
+                pemilik: "SITI NURHALIZA",
+                nik: "3273018273640003",
+                tipe: "Honda Vario 160 CBS",
+                jenis: "motor",
+                tahun: "2022",
+                cc: "156",
+                warna: "Merah Doff",
+                jatuhTempo: "2026-08-10", // Terlambat 3 bulan
+                pkb: 380000,
+                swdkllj: 35000,
+                admin: 50000,
+                denda: 45000,
+                status: "Menunggak Pajak"
+            },
+            "B 5678 EFG": {
+                nopol: "B 5678 EFG",
+                norangka: "5555666677778888",
+                nomesin: "R18A-88271",
+                pemilik: "BUDI SANTOSO",
+                nik: "3174092837410005",
+                tipe: "Honda CR-V 1.5 Turbo",
+                jenis: "mobil",
+                tahun: "2021",
+                cc: "1498",
+                warna: "Putih Mutiara",
+                jatuhTempo: "2026-11-26",
+                pkb: 4850000,
+                swdkllj: 143000,
+                admin: 100000,
+                denda: 0,
+                status: "Mendekati Jatuh Tempo"
+            }
+        };
+
+        // State Global
+        let currentUser = null;
+        let currentActiveVehicle = null;
+        let paymentHistory = [
+            {
+                trxId: "TRX-2025-00129",
+                nopol: "B 1234 ABC",
+                tipe: "Toyota Avanza 1.5 G MT",
+                tanggal: "12 Nov 2025",
+                metode: "Bank BCA VA",
+                total: 2693000,
+                status: "LUNAS",
+                pemilik: "AHMAD FAUZI",
+                pkb: 2450000,
+                swdkllj: 143000,
+                admin: 100000,
+                denda: 0
+            }
+        ];
+
+        // ================= NAVIGATION SYSTEM =================
+        function switchTab(tabId) {
+            const pages = ['beranda', 'cek-pajak', 'riwayat', 'samsat-keliling', 'faq'];
+            pages.forEach(p => {
+                document.getElementById(`page-${p}`).classList.add('hidden');
+            });
+            document.getElementById(`page-${tabId}`).classList.remove('hidden');
+
+            if (tabId === 'riwayat') {
+                renderHistoryTable();
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // ================= AUTHENTICATION MODAL LOGIC =================
+        function openLoginModal() {
+            document.getElementById('login-modal').classList.remove('hidden');
+        }
+
+        function closeLoginModal() {
+            document.getElementById('login-modal').classList.add('hidden');
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            const username = document.getElementById('login-user').value;
+            const role = document.getElementById('login-role').value;
+
+            currentUser = {
+                name: username,
+                role: role
+            };
+
+            updateAuthUI();
+            closeLoginModal();
+            alert(`Berhasil masuk sebagai ${currentUser.name} (${currentUser.role})`);
+        }
+
+        function handleLogout() {
+            currentUser = null;
+            updateAuthUI();
+            alert("Anda telah keluar dari akun.");
+        }
+
+        function updateAuthUI() {
+            const authArea = document.getElementById('auth-area');
+            if (currentUser) {
+                authArea.innerHTML = `
+                    <div class="flex items-center space-x-3 bg-brand-800 px-3 py-1.5 rounded-xl border border-brand-700">
+                        <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center font-bold text-white text-xs">
+                            ${currentUser.name.substring(0, 2).toUpperCase()}
+                        </div>
+                        <div class="hidden sm:block text-left text-xs">
+                            <span class="block font-bold text-white">${currentUser.name}</span>
+                            <span class="text-blue-300 text-[10px]">${currentUser.role}</span>
+                        </div>
+                        <button onclick="handleLogout()" class="text-slate-300 hover:text-red-400 text-xs ml-2" title="Keluar">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                        </button>
+                    </div>
+                `;
+            } else {
+                authArea.innerHTML = `
+                    <button onclick="openLoginModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-semibold transition shadow hover:shadow-lg flex items-center space-x-2">
+                        <i class="fa-solid fa-right-to-bracket"></i>
+                        <span>Masuk / Daftar</span>
+                    </button>
+                `;
+            }
+        }
+
+        // ================= TAX SEARCH ENGINE =================
+        function fillDemoSearch(nopol, norangka, jenis) {
+            switchTab('cek-pajak');
+            document.getElementById('nopol').value = nopol;
+            document.getElementById('norangka').value = norangka.substring(norangka.length - 5);
+            document.getElementById('jenis-kendaraan').value = jenis;
+
+            // Trigger Search
+            handleTaxSearch(new Event('submit'));
+        }
+
+        function handleTaxSearch(e) {
+            if(e) e.preventDefault();
+            
+            const nopolInput = document.getElementById('nopol').value.trim().toUpperCase();
+            const alertArea = document.getElementById('search-alert');
+            const resultSection = document.getElementById('tax-result-section');
+
+            // Find match in dummy DB
+            const vehicle = mockDatabase[nopolInput];
+
+            if (vehicle) {
+                currentActiveVehicle = vehicle;
+                alertArea.classList.add('hidden');
+                
+                // Populate Results
+                document.getElementById('res-nopol').innerText = vehicle.nopol;
+                document.getElementById('res-tipe').innerText = vehicle.tipe;
+                document.getElementById('res-pemilik').innerText = `An. ${vehicle.pemilik} • NIK: ${vehicle.nik}`;
+                document.getElementById('res-jatuh-tempo').innerText = formatDate(vehicle.jatuhTempo);
+                document.getElementById('res-tahun-cc').innerText = `${vehicle.tahun} / ${vehicle.cc} cc`;
+                document.getElementById('res-warna').innerText = vehicle.warna;
+                document.getElementById('res-norangka').innerText = vehicle.norangka;
+                document.getElementById('res-nomesin').innerText = vehicle.nomesin;
+
+                // Numbers
+                const total = vehicle.pkb + vehicle.swdkllj + vehicle.admin + vehicle.denda;
+                document.getElementById('res-pkb').innerText = formatRupiah(vehicle.pkb);
+                document.getElementById('res-swdkllj').innerText = formatRupiah(vehicle.swdkllj);
+                document.getElementById('res-admin').innerText = formatRupiah(vehicle.admin);
+                document.getElementById('res-denda').innerText = formatRupiah(vehicle.denda);
+                document.getElementById('res-total').innerText = formatRupiah(total);
+
+                // Status Badge
+                const statusBadge = document.getElementById('res-status-badge');
+                if(vehicle.denda > 0) {
+                    statusBadge.innerText = "MENUNGGAK";
+                    statusBadge.className = "bg-red-500/20 text-red-300 border border-red-500/40 text-xs font-bold px-3 py-1 rounded-full uppercase";
+                } else {
+                    statusBadge.innerText = "AKTIF";
+                    statusBadge.className = "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-bold px-3 py-1 rounded-full uppercase";
+                }
+
+                resultSection.classList.remove('hidden');
+                resultSection.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                resultSection.classList.add('hidden');
+                alertArea.innerHTML = `
+                    <div class="bg-red-50 border border-red-200 text-red-800 p-4 rounded-xl flex items-center space-x-3 text-sm">
+                        <i class="fa-solid fa-circle-exclamation text-red-500 text-xl"></i>
+                        <div>
+                            <strong>Data Tidak Ditemukan!</strong> Pastikan Nomor Polisi yang diinputkan benar (Contoh: B 1234 ABC, D 8888 XYZ, B 5678 EFG).
+                        </div>
+                    </div>
+                `;
+                alertArea.classList.remove('hidden');
+            }
+        }
+
+        function resetSearchResult() {
+            document.getElementById('tax-result-section').classList.add('hidden');
+            document.getElementById('search-alert').classList.add('hidden');
+            currentActiveVehicle = null;
+        }
+
+        // ================= PAYMENT SIMULATION =================
+        function selectPaymentMethod(radio) {
+            document.querySelectorAll('.payment-option').forEach(el => {
+                el.classList.remove('border-blue-500', 'bg-blue-50/50');
+                el.classList.add('border-slate-200');
+            });
+            radio.closest('label').classList.add('border-blue-500', 'bg-blue-50/50');
+        }
+
+        function processPayment() {
+            if (!currentActiveVehicle) return;
+
+            const total = currentActiveVehicle.pkb + currentActiveVehicle.swdkllj + currentActiveVehicle.admin + currentActiveVehicle.denda;
+            
+            document.getElementById('pay-modal-nopol').innerText = currentActiveVehicle.nopol;
+            document.getElementById('pay-modal-total').innerText = formatRupiah(total);
+            document.getElementById('payment-modal').classList.remove('hidden');
+        }
+
+        function closePaymentModal() {
+            document.getElementById('payment-modal').classList.add('hidden');
+        }
+
+        function confirmSimulatedPayment() {
+            closePaymentModal();
+
+            const total = currentActiveVehicle.pkb + currentActiveVehicle.swdkllj + currentActiveVehicle.admin + currentActiveVehicle.denda;
+            const newTrxId = "TRX-2026-" + Math.floor(10000 + Math.random() * 90000);
+
+            // Add record to history
+            const newRecord = {
+                trxId: newTrxId,
+                nopol: currentActiveVehicle.nopol,
+                tipe: currentActiveVehicle.tipe,
+                tanggal: formatDate(new Date().toISOString()),
+                metode: "Virtual Account (Simulasi)",
+                total: total,
+                status: "LUNAS",
+                pemilik: currentActiveVehicle.pemilik,
+                pkb: currentActiveVehicle.pkb,
+                swdkllj: currentActiveVehicle.swdkllj,
+                admin: currentActiveVehicle.admin,
+                denda: currentActiveVehicle.denda
+            };
+
+            paymentHistory.unshift(newRecord);
+            
+            // Show Receipt Modal Immediately
+            openReceiptModal(newRecord);
+        }
+
+        // ================= RECEIPT & HISTORY LOGIC =================
+        function renderHistoryTable() {
+            const tbody = document.getElementById('history-table-body');
+            tbody.innerHTML = '';
+
+            if(paymentHistory.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400">Belum ada riwayat pembayaran.</td></tr>`;
+                return;
+            }
+
+            paymentHistory.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition";
+                tr.innerHTML = `
+                    <td class="p-4 font-mono font-bold text-blue-700">${item.trxId}</td>
+                    <td class="p-4">
+                        <div class="font-bold text-slate-800">${item.nopol}</div>
+                        <div class="text-xs text-slate-500">${item.tipe}</div>
+                    </td>
+                    <td class="p-4 text-slate-600">${item.tanggal}</td>
+                    <td class="p-4 text-slate-600">${item.metode}</td>
+                    <td class="p-4 font-bold text-slate-900">${formatRupiah(item.total)}</td>
+                    <td class="p-4">
+                        <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-1 rounded-full">
+                            ${item.status}
+                        </span>
+                    </td>
+                    <td class="p-4 text-center">
+                        <button onclick='openReceiptModalByTrx("${item.trxId}")' class="bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold px-3 py-1.5 rounded-lg text-xs transition flex items-center space-x-1 mx-auto">
+                            <i class="fa-solid fa-receipt"></i>
+                            <span>e-TBPKP</span>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function openReceiptModalByTrx(trxId) {
+            const item = paymentHistory.find(h => h.trxId === trxId);
+            if(item) openReceiptModal(item);
+        }
+
+        function openReceiptModal(record) {
+            document.getElementById('rec-nopol').innerText = record.nopol;
+            document.getElementById('rec-trx').innerText = record.trxId;
+            document.getElementById('rec-pemilik').innerText = record.pemilik;
+            document.getElementById('rec-tipe').innerText = record.tipe;
+            
+            document.getElementById('rec-pkb-pokok').innerText = formatNumber(record.pkb);
+            document.getElementById('rec-pkb-denda').innerText = formatNumber(record.denda);
+            document.getElementById('rec-pkb-total').innerText = formatNumber(record.pkb + record.denda);
+
+            document.getElementById('rec-swd-pokok').innerText = formatNumber(record.swdkllj);
+            document.getElementById('rec-swd-denda').innerText = "0";
+            document.getElementById('rec-swd-total').innerText = formatNumber(record.swdkllj);
+
+            document.getElementById('rec-adm-pokok').innerText = formatNumber(record.admin);
+            document.getElementById('rec-adm-total').innerText = formatNumber(record.admin);
+
+            document.getElementById('rec-grand-total').innerText = formatRupiah(record.total);
+            document.getElementById('rec-tgl-bayar').innerText = record.tanggal;
+
+            document.getElementById('receipt-modal').classList.remove('hidden');
+        }
+
+        function closeReceiptModal() {
+            document.getElementById('receipt-modal').classList.add('hidden');
+        }
+
+        // ================= FAQ INTERACTIVITY =================
+        function toggleFaq(button) {
+            const content = button.nextElementSibling;
+            const icon = button.querySelector('i');
+            
+            content.classList.toggle('hidden');
+            icon.classList.toggle('rotate-180');
+        }
+
+        // ================= HELPER FUNCTIONS =================
+        function formatRupiah(val) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val);
+        }
+
+        function formatNumber(val) {
+            return new Intl.NumberFormat('id-ID').format(val);
+        }
+
+        function formatDate(dateStr) {
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            return new Date(dateStr).toLocaleDateString('id-ID', options);
+        }
+
+        function copyToClipboard(text) {
+            const tempInput = document.createElement("input");
+            tempInput.value = text;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+            alert("Kode Pembayaran disalin: " + text);
+        }
+
+        // Initialize default view
+        window.onload = function() {
+            switchTab('beranda');
+        };
+    </script>
+</body>
+</html>
